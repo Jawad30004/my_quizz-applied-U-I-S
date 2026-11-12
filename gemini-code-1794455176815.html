@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applied University International School - Interactive Assessment Portal</title>
+    <style>
+        :root {
+            --primary-blue: #0284c7;
+            --sky-blue: #38bdf8;
+            --light-sky: #f0f9ff;
+            --teal: #0d9488;
+            --light-teal: #f0fdfa;
+            --green: #16a34a;
+            --light-green: #f0fdf4;
+            --orange: #ea580c;
+            --light-orange: #fff7ed;
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.05);
+            --radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .widescreen-frame {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-main);
+        }
+
+        header {
+            background: linear-gradient(135deg, #ffffff 0%, var(--light-sky) 100%);
+            border-bottom: 2px solid #bae6fd;
+            padding: 0.85rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+
+        .school-brand h1 {
+            font-size: 1.25rem;
+            color: var(--primary-blue);
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        .school-brand p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .teacher-badge {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 0.45rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--teal);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .slide-container {
+            flex: 1;
+            padding: 1.25rem 2.5rem;
+            max-width: 1650px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
+        .view {
+            display: none;
+            width: 100%;
+            height: 100%;
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+
+        .view.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(3px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .dashboard-header h2 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 0.4rem;
+            color: var(--text-main);
+        }
+
+        .dashboard-header p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        .grades-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(380px, 1fr));
+            gap: 2.5rem;
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .grade-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grade-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--teal));
+        }
+
+        .grade-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-blue);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .grade-tag {
+            display: inline-block;
+            background: var(--light-sky);
+            color: var(--primary-blue);
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.85rem;
+        }
+
+        .grade-card h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .grade-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+        }
+
+        .card-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--teal);
+            background: var(--light-teal);
+            padding: 0.5rem 0.9rem;
+            border-radius: 8px;
+        }
+
+        .btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn:hover { background: #02689d; transform: translateY(-1px); }
+        .btn-secondary { background: #e2e8f0; color: var(--text-main); }
+        .btn-secondary:hover { background: #cbd5e1; }
+        .btn-success { background: var(--green); }
+        .btn-success:hover { background: #15803d; }
+        .btn-warning { background: var(--orange); }
+        .btn-warning:hover { background: #c2410c; }
+        .btn-outline { background: #ffffff; border: 1px solid var(--border-color); color: var(--text-main); }
+        .btn-outline:hover { background: #f1f5f9; }
+
+        .quiz-slide-layout {
+            display: grid;
+            grid-template-columns: 1fr 370px;
+            gap: 1.75rem;
+            flex: 1;
+            align-items: stretch;
+            height: 100%;
+        }
+
+        /* Compact vertical stacking so nav buttons stay right beneath the options */
+        .quiz-main-slide {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: var(--shadow-md);
+        }
+
+        .quiz-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-slide-title .grade {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .quiz-slide-title .qnum {
+            font-size: 1.35rem;
+            font-weight: 800;
+        }
+
+        /* Large Bold Arial Question Text */
+        .question-box {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1.45rem;
+            font-weight: bold;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+        }
+
+        .options-grid-slide {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .option-box-slide {
+            background: #f8fafc;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.1rem 1.35rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .option-box-slide:hover {
+            border-color: var(--primary-blue);
+            background: var(--light-sky);
+            transform: translateY(-2px);
+        }
+
+        .option-box-slide.selected {
+            border-color: var(--primary-blue);
+            background: var(--light-sky);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        .option-letter-badge {
+            background: #e2e8f0;
+            color: var(--text-main);
+            font-weight: 800;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.95rem;
+        }
+
+        .option-box-slide.selected .option-letter-badge {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .option-text-content {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1.1rem;
+            font-weight: bold;
+            line-height: 1.4;
+            padding-top: 3px;
+            color: var(--text-main);
+        }
+
+        /* Navigation controls snapped tightly beneath the MCQ options */
+        .quiz-nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--light-sky);
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            padding: 0.7rem 1rem;
+            margin-top: 0.25rem;
+        }
+
+        .quiz-sidebar-slide {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .side-panel-box {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .side-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 0.5rem;
+        }
+
+        .active-student-select-box {
+            background: var(--light-teal);
+            border: 1px solid #5eead4;
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin-bottom: 0.65rem;
+        }
+
+        .active-student-select-box label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--teal);
+            display: block;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .active-student-select-box select {
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 8px;
+            border: 1px solid #2dd4bf;
+            background: white;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .attempted-counter-pill {
+            margin-top: 0.65rem;
+            background: #ffffff;
+            border: 1px solid #99f6e4;
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+        }
+
+        .attempted-counter-pill span.count-num {
+            background: var(--primary-blue);
+            color: #ffffff;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .nav-grid-container-slide {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .nav-box-slide {
+            aspect-ratio: 1;
+            background: #f1f5f9;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .nav-box-slide:hover { transform: scale(1.08); }
+        .nav-box-slide.current { border: 2px solid var(--primary-blue); background: var(--light-sky); color: var(--primary-blue); }
+        .nav-box-slide.unvisited { background: #f8fafc; color: var(--text-muted); }
+        .nav-box-slide.visited-unanswered { background: #fef08a; color: #854d0e; }
+        .nav-box-slide.answered { background: var(--light-green); color: var(--green); border-color: #86efac; }
+        .nav-box-slide.skipped { background: #ffedd5; color: var(--orange); border-color: #fed7aa; }
+
+        .summary-slide-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            padding: 2.25rem;
+            box-shadow: var(--shadow-md);
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            margin-top: 0.85rem;
+        }
+
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 0.95rem 1.15rem;
+            text-align: center;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.95rem;
+        }
+
+        .leaderboard-table th:nth-child(2), .leaderboard-table td:nth-child(2) {
+            text-align: left;
+        }
+
+        .leaderboard-table th {
+            background: var(--light-sky);
+            font-weight: 800;
+            color: var(--primary-blue);
+            text-transform: uppercase;
+            font-size: 0.82rem;
+            letter-spacing: 0.5px;
+        }
+
+        .rank-badge {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .rank-1 { background: #fef08a; color: #854d0e; border: 1px solid #fde047; }
+        .rank-2 { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .rank-3 { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+        .rank-other { background: #f8fafc; color: var(--text-muted); }
+
+        .student-breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.25rem;
+        }
+
+        .student-detail-box {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.35rem;
+            page-break-inside: avoid;
+        }
+
+        .student-detail-box h5 {
+            font-size: 1.05rem;
+            color: var(--primary-blue);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.6rem;
+            margin-bottom: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-box {
+            background: white; border-radius: var(--radius); padding: 2.25rem; max-width: 580px; width: 90%; box-shadow: var(--shadow-md);
+        }
+
+        @media print {
+            body { background: white !important; }
+            .quiz-sidebar-slide, .quiz-nav-row, .btn, .no-print { display: none !important; }
+            .widescreen-frame { height: auto !important; }
+            .slide-container { padding: 0 !important; max-width: 100% !important; }
+            .view { display: none !important; }
+            #view-summary { display: block !important; }
+            .summary-slide-card { box-shadow: none !important; border: none !important; padding: 0.5rem !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="widescreen-frame">
+
+    <header>
+        <div class="school-brand">
+            <h1>Applied University International School</h1>
+            <p>Interactive Assessment Portal</p>
+        </div>
+        <div class="teacher-badge">
+            <span>👨‍🏫</span> Mr. Jawad Ali | Science and Biology Teacher
+        </div>
+    </header>
+
+    <div class="slide-container">
+
+        <!-- VIEW 1: GRADE SELECTOR -->
+        <div id="view-dashboard" class="view active">
+            <div class="dashboard-header">
+                <h2>Select Assessment Grade</h2>
+                <p>Choose a grade to launch the interactive question deck and manage student rosters.</p>
+            </div>
+
+            <div class="grades-grid">
+                <!-- Grade 5 -->
+                <div class="grade-card">
+                    <div>
+                        <span class="grade-tag">Grade 5</span>
+                        <h3>Science Assessment</h3>
+                        <p>Properties of Matter, States of Matter & Phase Changes.</p>
+                        <div class="card-stats">
+                            <span>📚 40 Scenario MCQs</span>
+                            <span>⚡ Live Roster Enabled</span>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="app.selectGrade('grade5')">
+                        Launch Grade 5 Assessment &rarr;
+                    </button>
+                </div>
+
+                <!-- Grade 10 -->
+                <div class="grade-card">
+                    <div>
+                        <span class="grade-tag">Grade 10</span>
+                        <h3>Biology Assessment</h3>
+                        <p>Respiration and Fermentation (Scenario-Based).</p>
+                        <div class="card-stats">
+                            <span>📚 40 Scenario MCQs</span>
+                            <span>⚡ Live Roster Enabled</span>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="app.selectGrade('grade10')">
+                        Launch Grade 10 Assessment &rarr;
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-top: 2.75rem; display: flex; justify-content: center; gap: 1.25rem;">
+                <button class="btn btn-outline" onclick="app.openStudentMgmtModal()">👥 Manage Class Roster (<span id="roster-count-btn">0</span>)</button>
+                <button class="btn btn-outline" onclick="app.openHistoryView()">📊 Assessment History & Storage</button>
+            </div>
+        </div>
+
+        <!-- VIEW 2: QUIZ STUDIO -->
+        <div id="view-quiz" class="view">
+            <div class="quiz-slide-layout">
+                <!-- Main Question Panel -->
+                <div class="quiz-main-slide">
+                    <div class="quiz-top-bar">
+                        <div class="quiz-slide-title">
+                            <div class="grade" id="quiz-header-grade">GRADE 5 – SCIENCE ASSESSMENT</div>
+                            <div class="qnum" id="quiz-header-progress">QUESTION 01 OF 40</div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-outline" style="font-size: 0.85rem; padding: 0.45rem 0.9rem;" onclick="app.openStudentMgmtModal()">👥 Roster (<span id="student-count-badge">0</span>)</button>
+                            <button class="btn btn-warning" style="font-size: 0.85rem; padding: 0.45rem 0.9rem;" onclick="app.confirmSubmitAssessment()">Submit Assessment</button>
+                            <button class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.45rem 0.9rem;" onclick="app.returnToDashboard()">Exit</button>
+                        </div>
+                    </div>
+
+                    <!-- Arial Large Bold Question Text -->
+                    <div class="question-box" id="quiz-question-text">
+                        Loading question...
+                    </div>
+
+                    <div class="options-grid-slide" id="quiz-options-grid">
+                        <!-- Rendered dynamically -->
+                    </div>
+
+                    <!-- Navigation controls placed directly underneath options -->
+                    <div class="quiz-nav-row">
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-secondary" style="padding: 0.55rem 1.15rem; font-size: 0.9rem;" onclick="app.prevQuestion()">&#8592; Previous</button>
+                            <button class="btn" style="padding: 0.55rem 1.25rem; font-size: 0.9rem;" onclick="app.nextQuestion()">Next &#8594;</button>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline" style="padding: 0.55rem 1.15rem; font-size: 0.9rem;" onclick="app.skipCurrentQuestion()">Skip Question</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar Controls -->
+                <div class="quiz-sidebar-slide">
+                    <!-- Turn Assignment Box with Live Attempted Counter -->
+                    <div class="side-panel-box">
+                        <div class="side-title">
+                            <span>Turn Assignment</span>
+                            <button class="btn btn-outline" style="font-size: 0.7rem; padding: 2px 6px;" onclick="app.openStudentMgmtModal()">+ Add Student</button>
+                        </div>
+                        <div class="active-student-select-box">
+                            <label for="active-student-select">Active Student Answering:</label>
+                            <select id="active-student-select" onchange="app.changeActiveStudent(this.value)">
+                                <option value="">-- Select Student --</option>
+                            </select>
+                            <!-- Live Attempted Counter -->
+                            <div class="attempted-counter-pill" id="active-student-attempted-pill">
+                                <span>MCQs Attempted:</span>
+                                <span class="count-num" id="active-student-attempted-count">0</span>
+                            </div>
+                        </div>
+                        <div id="student-turn-status" style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+                            Select a student to record their answer.
+                        </div>
+                    </div>
+
+                    <!-- Question Navigator Grid -->
+                    <div class="side-panel-box">
+                        <div class="side-title">
+                            <span>Navigator</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">40 MCQs</span>
+                        </div>
+                        <div class="nav-grid-container-slide" id="nav-grid">
+                            <!-- Rendered 40 boxes -->
+                        </div>
+                    </div>
+
+                    <!-- Live Rankings Preview -->
+                    <div class="side-panel-box" style="flex: 1;">
+                        <div class="side-title">
+                            <span>Live Rankings</span>
+                        </div>
+                        <div id="sidebar-leaderboard-preview" style="font-size: 0.85rem;">
+                            <p style="color: var(--text-muted); text-align: center; padding: 10px;">No responses recorded yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: SUMMARY & REPORT -->
+        <div id="view-summary" class="view">
+            <div class="summary-slide-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-blue); padding-bottom: 1.25rem; margin-bottom: 1.75rem;">
+                    <div>
+                        <h3 id="summary-grade-title" style="font-size: 1.5rem; font-weight: 800; color: var(--primary-blue);">Assessment Summary & Student Report</h3>
+                        <p id="summary-timestamp" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">Submitted: -- | Teacher: Mr. Jawad Ali</p>
+                    </div>
+                    <div style="display: flex; gap: 10px;" class="no-print">
+                        <button class="btn btn-success" onclick="window.print()">📄 Print / Save PDF Report</button>
+                        <button class="btn btn-outline" onclick="app.reopenAssessment()">🔓 Reopen Assessment</button>
+                        <button class="btn btn-secondary" onclick="app.returnToDashboard()">Dashboard</button>
+                    </div>
+                </div>
+
+                <!-- TOP SECTION: MASTER SUMMARY TABLE -->
+                <h4 style="margin-bottom: 0.65rem; font-size: 1.2rem; font-weight: 800; color: var(--text-main);">1. Overall Student Performance & Ranking Summary</h4>
+                <table class="leaderboard-table" id="summary-leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Student Name</th>
+                            <th>Total MCQs Attempted</th>
+                            <th>Correct</th>
+                            <th>Incorrect</th>
+                            <th>Skipped</th>
+                            <th>Marks</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summary-leaderboard-tbody"></tbody>
+                </table>
+
+                <!-- SECOND SECTION: INDIVIDUAL STUDENT BREAKDOWN -->
+                <h4 style="margin-top: 2.25rem; margin-bottom: 0.65rem; font-size: 1.2rem; font-weight: 800; color: var(--text-main);">2. Individual Student MCQ Sequence Logs</h4>
+                <div class="student-breakdown-grid" id="individual-student-logs">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 4: HISTORY -->
+        <div id="view-history" class="view">
+            <div class="summary-slide-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3>Saved Assessment History</h3>
+                    <button class="btn btn-secondary" onclick="app.returnToDashboard()">Back</button>
+                </div>
+                <div id="history-list-container"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL: STUDENT MANAGEMENT (ADD/REMOVE AT ANY TIME) -->
+<div class="modal-overlay" id="modal-student-mgmt">
+    <div class="modal-box">
+        <h3>Class Roster Management</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">Add students before starting or anytime during the quiz in the middle of a session.</p>
+        <form onsubmit="app.addNewStudent(event)" style="margin-bottom: 1.25rem;">
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="new-student-name" class="btn btn-outline" style="flex: 1; text-align: left; padding: 0.65rem 1rem; font-size: 1rem;" placeholder="Enter Student Name" autocomplete="off" required>
+                <button type="submit" class="btn">+ Add Student</button>
+            </div>
+        </form>
+        <div style="max-height: 240px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1.25rem;">
+            <table class="leaderboard-table" style="margin-top: 0;">
+                <tbody id="modal-students-tbody"></tbody>
+            </table>
+        </div>
+        <div style="display: flex; justify-content: flex-end;">
+            <button class="btn" onclick="app.closeStudentMgmtModal()">Done & Continue</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: SUBMIT CONFIRM -->
+<div class="modal-overlay" id="modal-submit-confirm">
+    <div class="modal-box">
+        <h3>Submit Assessment?</h3>
+        <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1.75rem;">This will finalize scores and generate the complete student ranking report.</p>
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+            <button class="btn btn-secondary" onclick="app.closeSubmitModal()">Cancel</button>
+            <button class="btn btn-success" onclick="app.executeFinalSubmit()">Confirm Submit</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const QUESTION_BANKS = {
+        grade5: [
+            { id: 1, text: "Ali fills a balloon with air. The balloon becomes bigger. What does this show?", options: ["Air has no mass", "Air takes up space", "Air is a solid", "Air has no volume"], correct: "B" },
+            { id: 2, text: "Sara pours orange juice from a bottle into a glass. The juice takes the shape of the glass. Why?", options: ["Juice is a solid", "Juice has a fixed shape", "Juice takes the shape of its container", "Juice has no volume"], correct: "C" },
+            { id: 3, text: "Ahmed places a book on a balance scale. What is he measuring?", options: ["Temperature", "Volume", "Mass", "Length"], correct: "C" },
+            { id: 4, text: "Fatima uses a measuring cup to check how much milk is in a bottle. What is she measuring?", options: ["Mass", "Volume", "Temperature", "Shape"], correct: "B" },
+            { id: 5, text: "Omar touches a cup of hot tea carefully and notices that it is warm. Which property describes how hot or cold something is?", options: ["Mass", "Volume", "Temperature", "Shape"], correct: "C" },
+            { id: 6, text: "A student places a stone and a toy car on a balance scale. The stone is heavier. What does this tell us?", options: ["The stone has more mass", "The stone has more color", "The toy car has more volume", "The stone is a gas"], correct: "A" },
+            { id: 7, text: "Maryam squeezes an empty plastic bottle. Its shape changes. What does this demonstrate?", options: ["Matter can change shape", "Matter disappears", "Matter has no mass", "Matter becomes light"], correct: "A" },
+            { id: 8, text: "A football is filled with air. Why does it become round and firm?", options: ["Air takes up space inside it", "Air is a liquid", "Air has a fixed shape", "Air is not matter"], correct: "A" },
+            { id: 9, text: "A student compares a wooden block and a metal spoon. Both objects have mass and take up space. What do they have in common?", options: ["They are gases", "They are matter", "They are liquids", "They have the same shape"], correct: "B" },
+            { id: 10, text: "A student wants to measure the temperature of water during an experiment. Which tool should be used?", options: ["Ruler", "Balance scale", "Thermometer", "Measuring cup"], correct: "C" },
+            { id: 11, text: "Ahmed puts a wooden block on a table. It keeps the same shape. What state of matter is it?", options: ["Liquid", "Gas", "Solid", "Water vapor"], correct: "C" },
+            { id: 12, text: "Lina pours water into a tall glass and then into a wide bowl. What changes?", options: ["Its shape", "Its mass disappears", "It becomes a gas", "Its volume disappears"], correct: "A" },
+            { id: 13, text: "A student blows air into a plastic bag. The bag expands. What does this show about gases?", options: ["They have a fixed shape", "They take up space", "They are always visible", "They have no mass"], correct: "B" },
+            { id: 14, text: "A bottle contains cooking oil. The oil flows when poured into another container. What state of matter is oil?", options: ["Solid", "Liquid", "Gas", "Ice"], correct: "B" },
+            { id: 15, text: "A student observes that a rock keeps its shape when moved from a box to a table. Why?", options: ["It is a solid", "It is a gas", "It is a liquid", "It has no volume"], correct: "A" },
+            { id: 16, text: "A balloon is filled with air. The air spreads throughout the balloon. Which property of gases does this show?", options: ["Gases have fixed shapes", "Gases fill the available space", "Gases cannot move", "Gases have no volume"], correct: "B" },
+            { id: 17, text: "Sara drinks water using a straw. What state of matter is the water?", options: ["Solid", "Gas", "Liquid", "Ice"], correct: "C" },
+            { id: 18, text: "A student places a metal spoon in a box. The spoon keeps its own shape. Which state of matter has a fixed shape?", options: ["Gas", "Liquid", "Solid", "Water vapor"], correct: "C" },
+            { id: 19, text: "A child sprays perfume in one corner of a room. After some time, people in other corners can smell it. Why?", options: ["Gas particles spread through the air", "Perfume becomes a solid", "Perfume stops moving", "The air disappears"], correct: "A" },
+            { id: 20, text: "A student compares ice, water, and water vapor. Which statement is correct?", options: ["All three are solids", "Ice is solid, water is liquid, and water vapor is gas", "Ice is gas and water is solid", "All three are gases"], correct: "B" },
+            { id: 21, text: "Ali leaves an ice cube on a plate. After some time, it becomes water. Which process occurred?", options: ["Freezing", "Melting", "Condensation", "Evaporation"], correct: "B" },
+            { id: 22, text: "Sara puts water into an ice tray and places it in the freezer. What will happen?", options: ["It will melt", "It will evaporate", "It will freeze", "It will boil"], correct: "C" },
+            { id: 23, text: "Fatima leaves wet clothes outside on a sunny day. After a few hours, they become dry. Which process causes this?", options: ["Condensation", "Freezing", "Evaporation", "Melting"], correct: "C" },
+            { id: 24, text: "Ahmed takes a cold water bottle out of the refrigerator. Tiny droplets appear on its outside. What is happening?", options: ["Melting", "Condensation", "Freezing", "Boiling"], correct: "B" },
+            { id: 25, text: "A chocolate bar is left in a hot car. It changes from solid to liquid. What caused this change?", options: ["Cooling", "Freezing", "Heating", "Condensation"], correct: "C" },
+            { id: 26, text: "A student boils water in a kettle. Water vapor rises from the kettle. What process is taking place?", options: ["Freezing", "Melting", "Evaporation", "Condensation"], correct: "C" },
+            { id: 27, text: "During winter, a puddle of water turns into ice. What type of change is this?", options: ["Liquid to solid", "Solid to liquid", "Gas to liquid", "Liquid to gas"], correct: "A" },
+            { id: 28, text: "Water vapor in the air cools and forms tiny water droplets on a window. Which process is responsible?", options: ["Melting", "Evaporation", "Condensation", "Freezing"], correct: "C" },
+            { id: 29, text: "Noor places butter in a warm frying pan. The butter changes into liquid. What happened?", options: ["Freezing", "Melting", "Condensation", "Cooling"], correct: "B" },
+            { id: 30, text: "A wet floor becomes dry after a few hours. Where does most of the water go?", options: ["Into the ground only", "It disappears forever", "It changes into water vapor", "It changes into ice"], correct: "C" },
+            { id: 31, text: "Sami puts a small amount of water in a shallow plate and another amount in a deep glass. Both are kept in the sun. Which water will probably evaporate faster?", options: ["Water in the shallow plate", "Water in the deep glass", "Both will freeze", "Neither will change"], correct: "A" },
+            { id: 32, text: "A student puts an ice cube into warm water. What will most likely happen?", options: ["The ice cube will become bigger", "The ice cube will melt", "The water will freeze immediately", "The ice cube will become a gas immediately"], correct: "B" },
+            { id: 33, text: "A cold mirror becomes covered with tiny water droplets after someone takes a hot shower. What causes these droplets?", options: ["Freezing", "Melting", "Condensation", "Boiling"], correct: "C" },
+            { id: 34, text: "A student warms a solid piece of wax. It becomes liquid. What happened to the particles?", options: ["They gained energy and moved more freely", "They disappeared", "They stopped moving", "They became smaller"], correct: "A" },
+            { id: 35, text: "A family makes ice cubes by placing water in a freezer. What causes the change?", options: ["Heating", "Cooling", "Evaporation", "Boiling"], correct: "B" },
+            { id: 36, text: "A student notices that a puddle disappears faster on a hot, sunny day than on a cold day. Why?", options: ["Heat increases evaporation", "Heat causes freezing", "The water becomes a solid", "The water loses its mass instantly"], correct: "A" },
+            { id: 37, text: "A student observes that a solid block of ice has a fixed shape. What happens when it melts?", options: ["It becomes a liquid and takes the shape of its container", "It becomes a gas immediately", "It keeps the same fixed shape", "It loses all its mass"], correct: "A" },
+            { id: 38, text: "A teacher shows students a boiling pot of water. Which statement correctly describes the change?", options: ["Gas changes into liquid", "Liquid changes into gas", "Solid changes into liquid", "Liquid changes into solid"], correct: "B" },
+            { id: 39, text: "A student puts a glass of cold water on a table in a warm room. Water droplets form outside the glass. Where did these droplets come from?", options: ["Water passing through the glass", "Water vapor in the surrounding air", "Ice inside the glass", "The glass changing into water"], correct: "B" },
+            { id: 40, text: "Which two phase changes are shown in the sequence from Ice to Water to Water vapor?", options: ["Freezing and condensation", "Melting and evaporation", "Condensation and freezing", "Freezing and melting"], correct: "B" }
+        ],
+        grade10: [
+            { id: 1, text: "Ahmed runs around the playground. His muscles need energy to keep moving. Which process releases energy from food?", options: ["Digestion", "Respiration", "Photosynthesis", "Excretion"], correct: "B" },
+            { id: 2, text: "Sara is sleeping at night. Her heart is beating, and her body is working. Does respiration continue while she sleeps?", options: ["No, respiration stops during sleep", "Yes, respiration continues", "Only her lungs respire", "Only plants respire at night"], correct: "B" },
+            { id: 3, text: "A student eats a sandwich containing carbohydrates. His body breaks down glucose to release energy. Which process is responsible?", options: ["Respiration", "Photosynthesis", "Evaporation", "Condensation"], correct: "A" },
+            { id: 4, text: "A plant is kept inside a dark room for the whole night. Does the plant still carry out respiration?", options: ["No, plants need sunlight to respire", "Yes, plants respire day and night", "Only flowers respire", "Only roots respire"], correct: "B" },
+            { id: 5, text: "Mohammed is playing football. His muscles need energy to kick the ball and run. Where does respiration take place?", options: ["Only in the lungs", "Only in the heart", "In living cells", "Only in the stomach"], correct: "C" },
+            { id: 6, text: "A teacher asks students why humans need respiration. What should they answer?", options: ["To release energy for body activities", "To produce sunlight", "To change eye color", "To make food disappear"], correct: "A" },
+            { id: 7, text: "Fatima is sitting quietly in the classroom. She is not running or exercising. Is respiration still happening in her body?", options: ["No, only active people respire", "Yes, her cells still need energy", "Only during lunchtime", "Only when she drinks water"], correct: "B" },
+            { id: 8, text: "A student says, 'Only animals carry out respiration.' What is the correct response?", options: ["Correct, plants do not respire", "Incorrect, all living organisms respire", "Correct, bacteria do not respire", "Incorrect, only plants respire"], correct: "B" },
+            { id: 9, text: "Ali asks his teacher what respiration provides to living cells. What is the main answer?", options: ["Energy", "Sunlight", "Soil", "Water only"], correct: "A" },
+            { id: 10, text: "A student is studying respiration in humans and plants. Which statement is correct?", options: ["Only humans need energy", "Only plants need energy", "Both plants and humans carry out respiration", "Neither plants nor humans respire"], correct: "C" },
+            { id: 11, text: "A student is reading about a process that uses oxygen to release energy from glucose. What type of respiration is this?", options: ["Anaerobic respiration", "Aerobic respiration", "Fermentation", "Photosynthesis"], correct: "B" },
+            { id: 12, text: "During a science experiment, yeast cells release energy from glucose without oxygen. Which type of respiration is involved?", options: ["Aerobic respiration", "Anaerobic respiration", "Photosynthesis", "Digestion"], correct: "B" },
+            { id: 13, text: "Sara sees the word 'aerobic' in her biology textbook. What does aerobic mean?", options: ["Without oxygen", "With oxygen", "Without glucose", "Without energy"], correct: "B" },
+            { id: 14, text: "Ahmed sees the word 'anaerobic' in a question. What does anaerobic mean?", options: ["With oxygen", "Without oxygen", "With sunlight", "With water only"], correct: "B" },
+            { id: 15, text: "A teacher gives students two examples: Process 1 (Respiration with oxygen), Process 2 (Respiration without oxygen). Which answer is correct?", options: ["Both are aerobic", "Both are anaerobic", "Process 1 is aerobic and Process 2 is anaerobic", "Process 1 is anaerobic and Process 2 is aerobic"], correct: "C" },
+            { id: 16, text: "A student is comparing aerobic and anaerobic respiration. Which one requires oxygen?", options: ["Aerobic respiration", "Anaerobic respiration", "Both require no oxygen", "Neither releases energy"], correct: "A" },
+            { id: 17, text: "During a lesson, a teacher asks students to identify respiration that happens without oxygen. What is the correct answer?", options: ["Aerobic respiration", "Anaerobic respiration", "Photosynthesis", "Digestion"], correct: "B" },
+            { id: 18, text: "A student thinks respiration happens only when a person is exercising. What should the teacher explain?", options: ["Respiration happens only during running", "Respiration happens in living cells all the time", "Respiration stops during sleep", "Respiration happens only after eating"], correct: "B" },
+            { id: 19, text: "A baker adds yeast to bread dough. The yeast breaks down sugar without using oxygen. Which process is taking place?", options: ["Photosynthesis", "Fermentation", "Digestion", "Condensation"], correct: "B" },
+            { id: 20, text: "A student observes yeast working in a container without oxygen. What type of respiration is taking place?", options: ["Aerobic respiration", "Anaerobic respiration", "Photosynthesis", "Breathing"], correct: "B" },
+            { id: 21, text: "A yeast cell uses glucose to release energy during fermentation. Which substance is being broken down?", options: ["Water", "Glucose", "Oxygen", "Salt"], correct: "B" },
+            { id: 22, text: "A teacher asks students to name a useful process used in food production that happens without oxygen. What should they choose?", options: ["Fermentation", "Photosynthesis", "Transpiration", "Digestion"], correct: "A" },
+            { id: 23, text: "During a biology lesson, students learn about two common types of fermentation. Which are they?", options: ["Fast and slow fermentation", "Hot and cold fermentation", "Lactic acid and alcoholic fermentation", "Aerobic and photosynthetic fermentation"], correct: "C" },
+            { id: 24, text: "A student is preparing a simple diagram of fermentation. Which statement should be written?", options: ["Fermentation requires oxygen", "Fermentation happens without oxygen", "Fermentation does not use glucose", "Fermentation produces sunlight"], correct: "B" },
+            { id: 25, text: "A baker mixes yeast, sugar and warm water. The yeast becomes active and starts breaking down sugar. Which organism is responsible?", options: ["Yeast", "Fish", "Earthworm", "Butterfly"], correct: "A" },
+            { id: 26, text: "A student asks why yeast carries out fermentation when oxygen is not available. What is the best answer?", options: ["To release energy from glucose", "To produce sunlight", "To make soil", "To stop all cell activities"], correct: "A" },
+            { id: 27, text: "A food company uses microorganisms to prepare different fermented foods. Which process are they using?", options: ["Fermentation", "Photosynthesis", "Evaporation", "Freezing"], correct: "A" },
+            { id: 28, text: "A teacher asks which of the following is NOT a type of fermentation. Which answer is correct?", options: ["Lactic acid fermentation", "Alcoholic fermentation", "Photosynthesis fermentation", "Both A and B"], correct: "C" },
+            { id: 29, text: "Ahmed runs very fast during a race. His muscles need more energy, but oxygen is not available in sufficient amounts. Which process can occur?", options: ["Alcoholic fermentation", "Lactic acid fermentation", "Photosynthesis", "Condensation"], correct: "B" },
+            { id: 30, text: "After a very hard workout, a student learns that his muscle cells can produce lactic acid. Which process is responsible?", options: ["Alcoholic fermentation", "Lactic acid fermentation", "Aerobic respiration", "Photosynthesis"], correct: "B" },
+            { id: 31, text: "A student is studying the products of lactic acid fermentation. Which substance is produced?", options: ["Alcohol", "Lactic acid", "Oxygen", "Carbon dioxide only"], correct: "B" },
+            { id: 32, text: "A food company uses special bacteria to prepare yogurt from milk. Which type of fermentation is used?", options: ["Alcoholic fermentation", "Lactic acid fermentation", "Aerobic respiration", "Photosynthesis"], correct: "B" },
+            { id: 33, text: "During a biology lesson, the teacher shows a picture of yogurt-making bacteria. What type of bacteria is involved?", options: ["Lactic acid bacteria", "Mosquitoes", "Fish", "Butterflies"], correct: "A" },
+            { id: 34, text: "A student compares two processes and notices that one produces lactic acid. Which process is it?", options: ["Alcoholic fermentation", "Lactic acid fermentation", "Photosynthesis", "Aerobic respiration"], correct: "B" },
+            { id: 35, text: "A baker adds yeast to bread dough. The yeast breaks down sugar and produces alcohol and carbon dioxide. Which process is occurring?", options: ["Lactic acid fermentation", "Alcoholic fermentation", "Photosynthesis", "Aerobic respiration"], correct: "B" },
+            { id: 36, text: "A student observes that bread dough becomes bigger after yeast is added. Which gas helps the dough rise?", options: ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"], correct: "C" },
+            { id: 37, text: "During alcoholic fermentation, yeast breaks down glucose. Which two main products are formed?", options: ["Alcohol and carbon dioxide", "Lactic acid and oxygen", "Water and oxygen", "Salt and water"], correct: "A" },
+            { id: 38, text: "A teacher asks students which microorganism is commonly used in alcoholic fermentation. What is the answer?", options: ["Yeast", "Fish", "Earthworm", "Butterfly"], correct: "A" },
+            { id: 39, text: "A student visits a bakery and sees bread dough rising. The teacher explains that yeast is producing carbon dioxide. Which process is taking place?", options: ["Lactic acid fermentation", "Alcoholic fermentation", "Photosynthesis", "Freezing"], correct: "B" },
+            { id: 40, text: "Yogurt uses lactic acid bacteria, and bread uses yeast. Which answer correctly identifies the fermentation types?", options: ["Both use alcoholic fermentation", "Both use lactic acid fermentation", "Yogurt uses lactic acid fermentation, and bread uses alcoholic fermentation", "Yogurt uses aerobic respiration, and bread uses photosynthesis"], correct: "C" }
+        ]
+    };
+
+    class InteractiveQuizApp {
+        constructor() {
+            this.currentGrade = 'grade5';
+            this.currentQuestionIndex = 0;
+            this.students = [];
+            this.activeStudentId = null;
+            this.studentResponses = {};
+            this.questionStates = {};
+            this.assessmentSubmitted = false;
+            this.submissionTimestamp = null;
+            this.loadState();
+        }
+
+        saveState() {
+            localStorage.setItem('jawad_interactive_quiz_state', JSON.stringify({
+                currentGrade: this.currentGrade,
+                currentQuestionIndex: this.currentQuestionIndex,
+                students: this.students,
+                activeStudentId: this.activeStudentId,
+                studentResponses: this.studentResponses,
+                questionStates: this.questionStates,
+                assessmentSubmitted: this.assessmentSubmitted,
+                submissionTimestamp: this.submissionTimestamp
+            }));
+        }
+
+        loadState() {
+            const saved = localStorage.getItem('jawad_interactive_quiz_state');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    this.currentGrade = data.currentGrade || 'grade5';
+                    this.currentQuestionIndex = data.currentQuestionIndex || 0;
+                    this.students = data.students || [];
+                    this.activeStudentId = data.activeStudentId || null;
+                    this.studentResponses = data.studentResponses || {};
+                    this.questionStates = data.questionStates || {};
+                    this.assessmentSubmitted = data.assessmentSubmitted || false;
+                    this.submissionTimestamp = data.submissionTimestamp || null;
+                } catch(e) {
+                    this.initDefaults();
+                }
+            } else {
+                this.initDefaults();
+            }
+            document.getElementById('roster-count-btn').textContent = this.students.length;
+        }
+
+        initDefaults() {
+            this.questionStates = {};
+            for(let i=0; i<40; i++) {
+                this.questionStates[i] = { visited: false, status: 'unvisited' };
+            }
+        }
+
+        switchView(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('roster-count-btn').textContent = this.students.length;
+        }
+
+        selectGrade(gradeKey) {
+            this.currentGrade = gradeKey;
+            this.currentQuestionIndex = 0;
+            this.assessmentSubmitted = false;
+            this.initDefaults();
+            this.questionStates[0].visited = true;
+            this.questionStates[0].status = 'visited-unanswered';
+            this.updateQuizUI();
+            this.switchView('view-quiz');
+            this.saveState();
+        }
+
+        returnToDashboard() {
+            this.switchView('view-dashboard');
+        }
+
+        updateQuizUI() {
+            const bank = QUESTION_BANKS[this.currentGrade];
+            const q = bank[this.currentQuestionIndex];
+
+            const titles = { grade5: 'GRADE 5 – SCIENCE ASSESSMENT', grade10: 'GRADE 10 – BIOLOGY ASSESSMENT' };
+            document.getElementById('quiz-header-grade').textContent = titles[this.currentGrade];
+            document.getElementById('quiz-header-progress').textContent = `QUESTION ${String(this.currentQuestionIndex + 1).padStart(2, '0')} OF 40`;
+            document.getElementById('student-count-badge').textContent = this.students.length;
+
+            document.getElementById('quiz-question-text').innerHTML = `Q${this.currentQuestionIndex + 1}: ${q.text}`;
+
+            const optGrid = document.getElementById('quiz-options-grid');
+            optGrid.innerHTML = '';
+            const keys = ['A', 'B', 'C', 'D'];
+            const texts = [q.options[0], q.options[1], q.options[2], q.options[3]];
+
+            let currentAns = null;
+            if (this.activeStudentId && this.studentResponses[this.activeStudentId]) {
+                if (this.studentResponses[this.activeStudentId][this.currentQuestionIndex]) {
+                    currentAns = this.studentResponses[this.activeStudentId][this.currentQuestionIndex].selectedOption;
+                }
+            }
+
+            for(let i=0; i<4; i++) {
+                const isSel = (currentAns === keys[i]);
+                const box = document.createElement('div');
+                box.className = `option-box-slide ${isSel ? 'selected' : ''}`;
+                box.onclick = () => this.recordAnswer(keys[i]);
+                box.innerHTML = `<div class="option-letter-badge">${keys[i]}</div><div class="option-text-content">${texts[i]}</div>`;
+                optGrid.appendChild(box);
+            }
+
+            this.updateActiveStudentDropdown();
+            this.renderNavGrid();
+            this.renderLeaderboardPreview();
+            this.updateTurnStatus();
+            this.saveState();
+        }
+
+        goToQuestion(idx) {
+            if (idx < 0 || idx >= 40) return;
+            this.currentQuestionIndex = idx;
+            if (this.questionStates[idx].status === 'unvisited') {
+                this.questionStates[idx].status = 'visited-unanswered';
+            }
+            this.questionStates[idx].visited = true;
+            this.updateQuizUI();
+        }
+
+        nextQuestion() { if (this.currentQuestionIndex < 39) this.goToQuestion(this.currentQuestionIndex + 1); }
+        prevQuestion() { if (this.currentQuestionIndex > 0) this.goToQuestion(this.currentQuestionIndex - 1); }
+
+        skipCurrentQuestion() {
+            this.questionStates[this.currentQuestionIndex].status = 'skipped';
+            if (this.activeStudentId) {
+                if (!this.studentResponses[this.activeStudentId]) this.studentResponses[this.activeStudentId] = {};
+                this.studentResponses[this.activeStudentId][this.currentQuestionIndex] = { originalQNum: this.currentQuestionIndex + 1, selectedOption: 'SKIP', isCorrect: false, isSkipped: true, marks: 0 };
+            }
+            this.nextQuestion();
+        }
+
+        renderNavGrid() {
+            const container = document.getElementById('nav-grid');
+            container.innerHTML = '';
+            for(let i=0; i<40; i++) {
+                const box = document.createElement('div');
+                const st = this.questionStates[i];
+                box.className = `nav-box-slide ${st.status} ${i === this.currentQuestionIndex ? 'current' : ''}`;
+                box.textContent = i + 1;
+                box.onclick = () => this.goToQuestion(i);
+                container.appendChild(box);
+            }
+        }
+
+        updateActiveStudentDropdown() {
+            const sel = document.getElementById('active-student-select');
+            const prev = this.activeStudentId;
+            sel.innerHTML = '<option value="">-- Select Student --</option>';
+            this.students.forEach(s => {
+                const stats = this.calculateStats(s.id);
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = `${s.name} (${stats.attempted} attempted)`;
+                if (s.id === prev) opt.selected = true;
+                sel.appendChild(opt);
+            });
+        }
+
+        changeActiveStudent(id) {
+            this.activeStudentId = id;
+            this.updateQuizUI();
+        }
+
+        updateTurnStatus() {
+            const div = document.getElementById('student-turn-status');
+            const counterPill = document.getElementById('active-student-attempted-pill');
+            const counterNum = document.getElementById('active-student-attempted-count');
+
+            if (!this.activeStudentId || this.students.length === 0) {
+                counterPill.style.display = 'none';
+                div.innerHTML = `<span style="color:var(--orange);">⚠️ Please add and select a student above to record answers.</span>`;
+                return;
+            }
+
+            const stu = this.students.find(s => s.id === this.activeStudentId);
+            if (!stu) return;
+
+            const stats = this.calculateStats(this.activeStudentId);
+            counterPill.style.display = 'flex';
+            counterNum.textContent = stats.attempted;
+
+            let rec = this.studentResponses[this.activeStudentId]?.[this.currentQuestionIndex];
+            if (rec) {
+                div.innerHTML = `<strong>${stu.name}</strong> | Q${this.currentQuestionIndex + 1} recorded: <strong>${rec.selectedOption}</strong> (${rec.isCorrect ? '✅ +2' : rec.isSkipped ? '⏭️ 0' : '❌ -1'})`;
+            } else {
+                div.innerHTML = `<strong>${stu.name}</strong> | Ready to record response for Q${this.currentQuestionIndex + 1}.`;
+            }
+        }
+
+        recordAnswer(key) {
+            if (!this.activeStudentId || this.students.length === 0) {
+                alert("Please add at least one student and select them from the dropdown before recording answers.");
+                this.openStudentMgmtModal();
+                return;
+            }
+            const q = QUESTION_BANKS[this.currentGrade][this.currentQuestionIndex];
+            const isCorrect = (key === q.correct);
+            const marks = isCorrect ? 2 : -1;
+
+            if (!this.studentResponses[this.activeStudentId]) this.studentResponses[this.activeStudentId] = {};
+            this.studentResponses[this.activeStudentId][this.currentQuestionIndex] = {
+                originalQNum: this.currentQuestionIndex + 1,
+                selectedOption: key,
+                isCorrect: isCorrect,
+                isSkipped: false,
+                marks: marks
+            };
+            this.questionStates[this.currentQuestionIndex].status = 'answered';
+            this.updateQuizUI();
+        }
+
+        calculateStats(studentId) {
+            const resp = this.studentResponses[studentId] || {};
+            let assigned = 0, attempted = 0, correct = 0, incorrect = 0, skipped = 0, score = 0;
+            Object.values(resp).forEach(r => {
+                assigned++;
+                if (r.isSkipped) skipped++;
+                else {
+                    attempted++;
+                    if (r.isCorrect) { correct++; score += 2; }
+                    else { incorrect++; score -= 1; }
+                }
+            });
+            const max = assigned * 2;
+            const pct = max > 0 ? Math.max(0, (score / max) * 100) : 0;
+            const acc = attempted > 0 ? (correct / attempted) * 100 : 0;
+            return { assigned, attempted, correct, incorrect, skipped, score, max, pct, acc };
+        }
+
+        getRanked() {
+            const list = this.students.map(s => ({ id: s.id, name: s.name, ...this.calculateStats(s.id) }));
+            list.sort((a,b) => b.pct - a.pct || b.score - a.score || b.acc - a.acc);
+            let rank = 1;
+            list.forEach((l, idx) => {
+                if (idx > 0 && l.pct === list[idx-1].pct && l.score === list[idx-1].score) l.rank = list[idx-1].rank;
+                else l.rank = rank;
+                rank++;
+            });
+            return list;
+        }
+
+        renderLeaderboardPreview() {
+            const container = document.getElementById('sidebar-leaderboard-preview');
+            const ranked = this.getRanked();
+            if (ranked.length === 0 || ranked.every(r => r.attempted === 0)) {
+                container.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:10px;">No responses recorded yet.</p>`;
+                return;
+            }
+            let html = '<div style="display:flex; flex-direction:column; gap:6px;">';
+            ranked.slice(0, 3).forEach(r => {
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:6px 10px; border-radius:6px; border:1px solid var(--border-color);">
+                    <div><span class="rank-badge ${r.rank===1?'rank-1':r.rank===2?'rank-2':'rank-3'}">${r.rank}</span> <strong>${r.name}</strong> <span style="font-size:0.75rem;color:var(--text-muted);">(${r.attempted} Qs)</span></div>
+                    <div style="font-weight:800; color:var(--primary-blue);">${r.score}pts</div>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        openStudentMgmtModal() { document.getElementById('modal-student-mgmt').classList.add('active'); this.renderStudentsModalTable(); }
+        closeStudentMgmtModal() { document.getElementById('modal-student-mgmt').classList.remove('active'); this.updateActiveStudentDropdown(); this.updateTurnStatus(); document.getElementById('roster-count-btn').textContent = this.students.length; }
+
+        addNewStudent(e) {
+            e.preventDefault();
+            const input = document.getElementById('new-student-name');
+            const name = input.value.trim();
+            if (!name) return;
+            const newStu = { id: 'stu_'+Date.now()+'_'+Math.random().toString(36).substr(2,3), name: name };
+            this.students.push(newStu);
+            if (!this.activeStudentId) this.activeStudentId = newStu.id;
+            input.value = '';
+            this.renderStudentsModalTable();
+            this.updateActiveStudentDropdown();
+            this.updateTurnStatus();
+            this.saveState();
+        }
+
+        removeStudent(id) {
+            this.students = this.students.filter(s => s.id !== id);
+            delete this.studentResponses[id];
+            if (this.activeStudentId === id) this.activeStudentId = this.students.length > 0 ? this.students[0].id : null;
+            this.renderStudentsModalTable();
+            this.updateActiveStudentDropdown();
+            this.updateTurnStatus();
+            this.saveState();
+        }
+
+        renderStudentsModalTable() {
+            const tbody = document.getElementById('modal-students-tbody');
+            tbody.innerHTML = '';
+            if (this.students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:var(--text-muted); padding:1.5rem;">No students in roster yet. Add students above.</td></tr>`;
+                return;
+            }
+            this.students.forEach((s) => {
+                const stats = this.calculateStats(s.id);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${s.name}</strong> <span style="font-size:0.75rem; color:var(--text-muted); margin-left:8px;">(${stats.attempted} MCQs attempted)</span></td>
+                    <td style="text-align:right;"><button class="btn btn-secondary" style="padding:4px 10px; font-size:0.8rem;" onclick="app.removeStudent('${s.id}')">Remove</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        confirmSubmitAssessment() { document.getElementById('modal-submit-confirm').classList.add('active'); }
+        closeSubmitModal() { document.getElementById('modal-submit-confirm').classList.remove('active'); }
+
+        executeFinalSubmit() {
+            this.closeSubmitModal();
+            this.assessmentSubmitted = true;
+            this.submissionTimestamp = new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' });
+            this.saveState();
+            this.renderSummaryView();
+            this.switchView('view-summary');
+        }
+
+        reopenAssessment() {
+            this.assessmentSubmitted = false;
+            this.switchView('view-quiz');
+            this.saveState();
+        }
+
+        renderSummaryView() {
+            const titles = { grade5: 'Grade 5 Science Assessment Report', grade10: 'Grade 10 Biology Assessment Report' };
+            document.getElementById('summary-grade-title').textContent = `${titles[this.currentGrade]} — Applied University International School`;
+            document.getElementById('summary-timestamp').textContent = `Submitted: ${this.submissionTimestamp || new Date().toLocaleString()} (Asia/Riyadh) | Teacher: Mr. Jawad Ali`;
+
+            const tbody = document.getElementById('summary-leaderboard-tbody');
+            tbody.innerHTML = '';
+            const ranked = this.getRanked();
+
+            if (ranked.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted);">No student records found.</td></tr>`;
+            } else {
+                ranked.forEach(r => {
+                    const tr = document.createElement('tr');
+                    const badge = r.rank===1?'rank-1':r.rank===2?'rank-2':r.rank===3?'rank-3':'rank-other';
+                    tr.innerHTML = `
+                        <td><span class="rank-badge ${badge}">${r.rank}</span></td>
+                        <td style="text-align:left;"><strong>${r.name}</strong></td>
+                        <td><strong>${r.attempted}</strong></td>
+                        <td style="color:var(--green); font-weight:800;">${r.correct}</td>
+                        <td style="color:var(--orange); font-weight:800;">${r.incorrect}</td>
+                        <td>${r.skipped}</td>
+                        <td><strong>${r.score} / ${r.max}</strong></td>
+                        <td><strong>${r.pct.toFixed(1)}%</strong></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            const logsContainer = document.getElementById('individual-student-logs');
+            logsContainer.innerHTML = '';
+
+            ranked.forEach(r => {
+                const respMap = this.studentResponses[r.id] || {};
+                const qKeys = Object.keys(respMap).sort((a,b) => Number(a) - Number(b));
+
+                let rowsHtml = '';
+                let seq = 1;
+                qKeys.forEach(k => {
+                    const item = respMap[k];
+                    const statusLabel = item.isSkipped ? 'Skipped (0)' : item.isCorrect ? 'Correct (+2)' : 'Incorrect (-1)';
+                    const statusColor = item.isSkipped ? 'var(--orange)' : item.isCorrect ? 'var(--green)' : '#dc2626';
+                    rowsHtml += `
+                        <tr>
+                            <td>${seq++}</td>
+                            <td>MCQ #${item.originalQNum}</td>
+                            <td><strong>${item.selectedOption}</strong></td>
+                            <td style="color:${statusColor}; font-weight:700;">${statusLabel}</td>
+                        </tr>
+                    `;
+                });
+
+                if (qKeys.length === 0) {
+                    rowsHtml = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No MCQs answered by this student yet.</td></tr>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'student-detail-box';
+                card.innerHTML = `
+                    <h5>
+                        <span>Rank #${r.rank} — ${r.name}</span>
+                        <span>Attempted: ${r.attempted} | Marks: ${r.score}/${r.max} (${r.pct.toFixed(1)}%)</span>
+                    </h5>
+                    <table class="leaderboard-table" style="margin-top:0;">
+                        <thead>
+                            <tr>
+                                <th>Seq</th>
+                                <th>MCQ Ref</th>
+                                <th>Selected</th>
+                                <th>Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                `;
+                logsContainer.appendChild(card);
+            });
+        }
+
+        openHistoryView() {
+            this.switchView('view-history');
+            const container = document.getElementById('history-list-container');
+            container.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:2rem;">Active session data is automatically preserved in local browser storage.</p>`;
+        }
+    }
+
+    const app = new InteractiveQuizApp();
+</script>
+
+</body>
+</html>
